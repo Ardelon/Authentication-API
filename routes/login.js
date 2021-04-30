@@ -8,32 +8,30 @@ const hash = require('hash.js')
 var jwt = require('jsonwebtoken');
 require('dotenv/config')
 
-router.post('/', async (req,res) => {
+router.post('/', async (req, res) => {
+   if (!req.body.username || !req.body.username.length) {
+      return res.status(400).json({ message: "username should not be empty" })
+   }
+
+   if (!req.body.password || !req.body.password.length) {
+      return res.status(400).json({ message: "password should not be empty" })
+   }
+
    const username = req.body.username;
    const password = hash.sha512().update(req.body.password + process.env.SALT).digest('hex')
-   
 
-   const user = await UserSchema.find({username:username , password:password});
-   
-   if (user.length == 0) {
-      return res.status(404).json({ message: 'user not found' });
+   const user = await UserSchema.findOne({ username: username, password: password });
+   if (!user) {
+      return res.status(401).json({ message: 'username or password invalid' });
    }
 
    const token = new TokenSchema({
       username: req.body.username,
-      token: jwt.sign({ foo: 'bar' }, 'shhhhh'),
+      token: jwt.sign({ username: username }, process.env.JWT_SECRET, { expiresIn: '1m' }),
       isValid: true,
-      expireAt: Date.now() + 86400  
    });
-   try {
-      const savedToken = await token.save();
-      return res.status(200).json({ message: 'Login Successfull', token: savedToken  })
-   }catch (err) {
-      return res.status(400)
-   }
-
-
-
+   const savedToken = await token.save();
+   return res.status(200).json({ message: 'Login Successfull', token: savedToken })
 })
 
 

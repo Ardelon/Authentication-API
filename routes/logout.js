@@ -6,18 +6,13 @@ const TokenSchema = require('../models/Token');
 
 
 
-router.post('/', async (req,res) => {
+router.post('/', async (req, res) => {
     let token = req.headers.token;
-    try {
-        const logoutUser = await TokenSchema.updateOne(
-            { token: token},
-            { $set: {isValid: false} }
-        );
-        return res.json({message:"Logout complete"})
-    } catch (err) {
-        return res.json({message: err});
-    }
-    
+    const logoutUser = await TokenSchema.updateOne(
+        { token: token },
+        { $set: { isValid: false } }
+    );
+    return res.json({ message: "Logout complete" })
 })
 
 module.exports = router

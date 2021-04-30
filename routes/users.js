@@ -6,26 +6,19 @@ const TokenSchema = require('../models/Token');
 
 
 router.get('/', async (req,res) => {
-   try {
       const users = await UserSchema.find();
       return res.json(users);
-   } catch (err) {
-      return res.json({ message: err });
-   }
 })
 
 router.get('/:username', async (req,res) => {
-   let token = req.headers.token;
    let username = req.params.username;
-   const tokenRecord = await TokenSchema.find({token:token, username:username, isValid:true})
+   const user = await UserSchema.findOne({ username: username})
 
-   if (tokenRecord.length) {
-      tokenRecord[0].username
-      return res.json({message:tokenRecord[0].username});
-      
+   if (!user) {
+      return res.status(404).json({message:"user not found"});
    }
    
-   return res.json({message:"There is no such user"}); 
+   return res.json({message:"ok",user:user}); 
 })
 
 module.exports = router
