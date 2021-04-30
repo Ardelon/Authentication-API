@@ -46,7 +46,7 @@ app.use("*", async (req, res, next) => {
         await TokenSchema.updateOne({ token: token }, { $set: { isValid: false } })
         return res.status(401).json({ message: 'token not valid' });
     }
-    console.log(decoded)
+    
     let username =decoded.username;
 
     let tokenRecord = await TokenSchema.find({ username: username, token: token, isValid: true })
